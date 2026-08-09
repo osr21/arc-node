@@ -128,6 +128,11 @@ test_checksum_validation() {
     # A genuinely empty checksum file must still be rejected.
     : > "$checksum_file"
     expect_fail "empty checksum file fails" verify_checksum_file "$archive" "$checksum_file" "$archive_name"
+
+    # A wrong hash without a trailing newline must still fail the comparison,
+    # not slip through the emptiness check.
+    printf '%s  %s' "0000000000000000000000000000000000000000000000000000000000000000" "$archive_name" > "$checksum_file"
+    expect_fail "mismatched checksum without trailing newline fails" verify_checksum_file "$archive" "$checksum_file" "$archive_name"
 }
 
 test_download_error_lists_assets() {
